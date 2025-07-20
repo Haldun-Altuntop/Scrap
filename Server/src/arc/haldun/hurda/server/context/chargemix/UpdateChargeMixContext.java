@@ -1,8 +1,8 @@
-package arc.haldun.hurda.server.context;
+package arc.haldun.hurda.server.context.chargemix;
 
 import arc.haldun.hurda.database.DatabaseManager;
 import arc.haldun.hurda.database.OperationFailedException;
-import arc.haldun.hurda.database.objects.User;
+import arc.haldun.hurda.database.objects.ChargeMix;
 import arc.haldun.hurda.server.SessionManager;
 import arc.haldun.hurda.server.Utilities;
 import com.sun.net.httpserver.HttpExchange;
@@ -13,9 +13,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 
-public class RegisterContext implements HttpHandler {
+public class UpdateChargeMixContext implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
@@ -24,27 +23,24 @@ public class RegisterContext implements HttpHandler {
             InputStream is = exchange.getRequestBody();
             byte[] requestData = is.readAllBytes();
             is.close();
-            System.out.println("istek okundu");
 
-            String requestString = new String(requestData, StandardCharsets.UTF_8);
+            JSONObject requestJson = Utilities.byteArrayToJson(requestData);
 
-            JSONObject requestJson = new JSONObject(requestString);
+            String sessionId = requestJson.getString("session-id");
+            ChargeMix cm = new ChargeMix(requestJson.getJSONObject("charge-mix"));
 
-            String userName = requestJson.getString("user-name");
-            String password = requestJson.getString("password");
-            System.out.println("kullanıcı okundu: " + userName);
+            boolean permitted = SessionManager.instance.has(sessionId);
 
-            User user = new User(userName, password);
-
-            DatabaseManager.addUser(user);
-            String sessionId = SessionManager.instance.addSession(user);
-            System.out.println("kullanıcı eklendi");
+            if (permitted) {
+                DatabaseManager.updateChargeMix(cm);
+            }
 
             JSONObject responseJson = new JSONObject();
-            responseJson.put("session-id", sessionId);
 
-            String responseString = responseJson.toString(4);
-            byte[] responseData = responseString.getBytes(StandardCharsets.UTF_8);
+            responseJson.put("permitted", permitted);
+            responseJson.put("succeed", true);
+
+            byte[] responseData = Utilities.jsonToByteArray(responseJson);
 
             exchange.sendResponseHeaders(200, responseData.length);
 
@@ -52,13 +48,9 @@ public class RegisterContext implements HttpHandler {
             os.write(responseData);
             os.close();
 
-            exchange.close();
-
         } catch (JSONException e) {
             Utilities.sendError(exchange, 400, "Invalid JSON: " + e.getMessage());
         } catch (OperationFailedException e) {
-            Utilities.sendError(exchange, 500, "Operation failed: " + e.getMessage());
-        } catch (Exception e) {
             Utilities.sendError(exchange, 500, "Internal server error: " + e.getMessage());
         } finally {
             exchange.close();

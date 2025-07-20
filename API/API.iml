@@ -9,5 +9,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="java-json" level="project" />
     <orderEntry type="module" module-name="DatabaseDriver" exported="" />
+    <orderEntry type="library" name="android" level="project" />
   </component>
 </module>

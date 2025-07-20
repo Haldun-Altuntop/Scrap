@@ -31,13 +31,13 @@ public class SessionIdHolder {
 
     public static void initFile() {
         try {
-            File file = new File("session");
-            if (file.exists()) {
+            sessionFile = new File("session");
+            if (sessionFile.exists()) {
                 //FileInputStream fis = new FileInputStream(file);
                 //byte[] data = fis.readAllBytes();
                 //fis.close();
 
-                Scanner scanner = new Scanner(file);
+                Scanner scanner = new Scanner(sessionFile);
                 SessionIdHolder.sessionId = scanner.nextLine();
                 scanner.close();
 
@@ -49,9 +49,8 @@ public class SessionIdHolder {
     }
 
     public static void clearSessionId() {
-        File file = new File("session");
-        if (file.exists()) {
-            file.delete();
+        if (sessionFile.exists()) {
+            sessionFile.delete();
         }
         sessionId = "";
     }
@@ -67,10 +66,9 @@ public class SessionIdHolder {
 
     private static void save() {
         try {
-            File file = new File("session");
-            if (!file.exists()) file.createNewFile();
+            if (!sessionFile.exists()) sessionFile.createNewFile();
 
-            FileWriter fw = new FileWriter(file);
+            FileWriter fw = new FileWriter(sessionFile);
             fw.write(sessionId);
             fw.close();
 

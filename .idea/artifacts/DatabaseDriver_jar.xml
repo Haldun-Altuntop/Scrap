@@ -1,0 +1,15 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="DatabaseDriver:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/DatabaseDriver_jar</output-path>
+    <root id="archive" name="DatabaseDriver.jar">
+      <element id="module-output" name="DatabaseDriver" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/cc/carm/lib/easysql-hikaricp/0.4.7/easysql-hikaricp-0.4.7.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/cc/carm/lib/easysql-impl/0.4.7/easysql-impl-0.4.7.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/cc/carm/lib/easysql-api/0.4.7/easysql-api-0.4.7.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/slf4j/slf4j-api/1.7.36/slf4j-api-1.7.36.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/java-json.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/mysql/mysql-connector-j/9.3.0/mysql-connector-j-9.3.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/google/protobuf/protobuf-java/4.29.0/protobuf-java-4.29.0.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

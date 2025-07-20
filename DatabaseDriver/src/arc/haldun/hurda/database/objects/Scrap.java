@@ -287,10 +287,13 @@ public class Scrap {
 
     @Override
     public String toString() {
+        //return getP01_name();
+
         try {
             return toJson().toString(4);
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
+
     }
 }

@@ -3,7 +3,12 @@ package arc.haldun.hurda.server;
 import arc.haldun.hurda.database.Connector;
 import arc.haldun.hurda.database.DatabaseManager;
 import arc.haldun.hurda.database.MariaDB;
-import arc.haldun.hurda.server.context.*;
+import arc.haldun.hurda.server.context.scrap.AddScrapContext;
+import arc.haldun.hurda.server.context.scrap.DeleteScrapContext;
+import arc.haldun.hurda.server.context.scrap.GetScrapContext;
+import arc.haldun.hurda.server.context.scrap.UpdateScrapContext;
+import arc.haldun.hurda.server.context.user.LoginContext;
+import arc.haldun.hurda.server.context.user.RegisterContext;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.*;

@@ -1,5 +1,8 @@
-package arc.haldun.hurda.server.context;
+package arc.haldun.hurda.server.context.chargemix;
 
+import arc.haldun.hurda.database.DatabaseManager;
+import arc.haldun.hurda.database.OperationFailedException;
+import arc.haldun.hurda.database.objects.ChargeMix;
 import arc.haldun.hurda.server.SessionManager;
 import arc.haldun.hurda.server.Utilities;
 import com.sun.net.httpserver.HttpExchange;
@@ -11,7 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class CheckSessionContext implements HttpHandler {
+public class AddChargeMixContext implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
@@ -23,12 +26,18 @@ public class CheckSessionContext implements HttpHandler {
 
             JSONObject requestJson = Utilities.byteArrayToJson(requestData);
 
-            String sessionId = requestJson.optString("session-id", "");
+            String sessionId = requestJson.optString("session-id");
+            ChargeMix cm = new ChargeMix(requestJson.optJSONObject("charge-mix"));
 
-            boolean res = SessionManager.instance.has(sessionId);
+            boolean permitted = SessionManager.instance.has(sessionId);
+
+            if (permitted) {
+                DatabaseManager.addChargeMix(cm);
+            }
 
             JSONObject responseJson = new JSONObject();
-            responseJson.put("result", res);
+            responseJson.put("permitted", permitted);
+            responseJson.put("succeed", true);
 
             byte[] responseData = Utilities.jsonToByteArray(responseJson);
 
@@ -39,8 +48,8 @@ public class CheckSessionContext implements HttpHandler {
             os.close();
 
         } catch (JSONException e) {
-            Utilities.sendError(exchange, 400, "Invalid JSON:" + e.getMessage());
-        } catch (Exception e) {
+            Utilities.sendError(exchange, 400, "Invalid JSON: " + e.getMessage());
+        } catch (OperationFailedException e) {
             Utilities.sendError(exchange, 500, "Internal server error: " + e.getMessage());
         } finally {
             exchange.close();

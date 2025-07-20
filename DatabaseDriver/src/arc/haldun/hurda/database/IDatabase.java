@@ -1,5 +1,6 @@
 package arc.haldun.hurda.database;
 
+import arc.haldun.hurda.database.objects.ChargeMix;
 import arc.haldun.hurda.database.objects.Scrap;
 import arc.haldun.hurda.database.objects.User;
 
@@ -19,4 +20,10 @@ public interface IDatabase {
     User getUser(int id) throws OperationFailedException;
     void deleteUser(int id) throws OperationFailedException;
     boolean login(User user);
+
+    void addChargeMix(ChargeMix cm) throws OperationFailedException;
+    void updateChargeMix(ChargeMix cm) throws OperationFailedException;
+    ChargeMix[] getAllChargeMixes() throws OperationFailedException;
+    ChargeMix getChargeMix(String chargeMixName) throws OperationFailedException;
+    void deleteChargeMix(String chargeMixName) throws OperationFailedException;
 }

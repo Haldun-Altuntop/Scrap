@@ -1,5 +1,6 @@
 package arc.haldun.hurda.database;
 
+import arc.haldun.hurda.database.objects.ChargeMix;
 import arc.haldun.hurda.database.objects.Scrap;
 import arc.haldun.hurda.database.objects.User;
 
@@ -101,5 +102,37 @@ public class DatabaseManager {
 
     public static boolean login(User user) {
         return login(user, database);
+    }
+
+    public static void addChargeMix(ChargeMix cm, IDatabase database) throws OperationFailedException {
+        database.addChargeMix(cm);
+    }
+
+    public static void addChargeMix(ChargeMix cm) throws OperationFailedException {
+        addChargeMix(cm, database);
+    }
+
+    public static void updateChargeMix(ChargeMix cm, IDatabase database) throws OperationFailedException {
+        database.updateChargeMix(cm);
+    }
+
+    public static void updateChargeMix(ChargeMix cm) throws OperationFailedException {
+        updateChargeMix(cm, database);
+    }
+
+    public static ChargeMix[] getAllChargeMixes(IDatabase database) throws OperationFailedException {
+        return database.getAllChargeMixes();
+    }
+
+    public static ChargeMix[] getAllChargeMixes() throws OperationFailedException {
+        return getAllChargeMixes(database);
+    }
+
+    public static void deleteChargeMix(String chargeMixName, IDatabase database) throws OperationFailedException {
+        database.deleteChargeMix(chargeMixName);
+    }
+
+    public static void deleteChargeMix(String chargeMixName) throws OperationFailedException {
+        deleteChargeMix(chargeMixName, database);
     }
 }

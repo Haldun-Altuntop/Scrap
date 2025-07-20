@@ -1,4 +1,4 @@
-package arc.haldun.hurda.server.context;
+package arc.haldun.hurda.server.context.scrap;
 
 import arc.haldun.hurda.database.DatabaseManager;
 import arc.haldun.hurda.database.OperationFailedException;

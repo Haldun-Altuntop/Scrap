@@ -1,15 +1,21 @@
 package arc.haldun.hurda.api;
 
+import android.speech.SpeechRecognizer;
 import arc.haldun.hurda.database.OperationFailedException;
+import arc.haldun.hurda.database.objects.ChargeMix;
 import arc.haldun.hurda.database.objects.Scrap;
+import jdk.jshell.spi.ExecutionControl;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.swing.text.Utilities;
 import java.io.InputStream;
+import java.io.NotActiveException;
 import java.net.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 public class ScrapBridge {
 
@@ -194,9 +200,9 @@ public class ScrapBridge {
                 throw new OperationFailedException("Yetkisiz kullanıcı");
             }
 
-            Scrap[] scraps = new Scrap[responseJson.length()];
+            Scrap[] scraps = new Scrap[responseJson.length() - 1];
 
-            for (int i = 0; i < responseJson.length(); i++) {
+            for (int i = 0; i < responseJson.length() - 1; i++) { // Bir tanesi permitted için
                 Scrap scrap = new Scrap(responseJson.getJSONObject(String.valueOf(i)));
                 scraps[i] = scrap;
             }
@@ -425,6 +431,256 @@ public class ScrapBridge {
         }
     }
 
+    public static void addChargeMix(ChargeMix cm) throws OperationFailedException {
+
+        try {
+            URI uri = new URI(SERVER_URL + "/api/charge-mix/add.php");
+            HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
+
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setDoOutput(true);
+
+            JSONObject requestJson = new JSONObject();
+            requestJson.put("session-id", SessionIdHolder.getSessionId());
+            requestJson.put("charge-mix", cm.toJson());
+
+            byte[] requestData = jsonToByteArray(requestJson);
+
+            OutputStream os = connection.getOutputStream();
+            os.write(requestData);
+            os.close();
+
+            InputStream es = connection.getErrorStream();
+            if (es != null) {
+                String msg = new String(es.readAllBytes(), StandardCharsets.UTF_8);
+                es.close();
+                System.err.println(msg);
+                return;
+            }
+
+            InputStream is = connection.getInputStream();
+            byte[] responseData = is.readAllBytes();
+            is.close();
+
+            connection.disconnect();
+
+            JSONObject responseJson = byteArrayToJson(responseData);
+
+            boolean permitted = responseJson.optBoolean("permitted", false);
+            if (!permitted) throw new OperationFailedException("Yetkisiz kullanıcı");
+
+            boolean succeed = responseJson.optBoolean("succeed", false);
+            if (!succeed) throw new OperationFailedException("İşlem gerçekleştirilemedi");
+
+        } catch (URISyntaxException | IOException | JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void updateChargeMix(ChargeMix cm) throws OperationFailedException {
+
+        try {
+            URI uri = new URI(SERVER_URL + "/api/charge-mix/update.php");
+            HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
+
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setDoOutput(true);
+
+            JSONObject requestJson = new JSONObject();
+            requestJson.put("session-id", SessionIdHolder.getSessionId());
+            requestJson.put("charge-mix", cm.toJson());
+
+            byte[] requestData = jsonToByteArray(requestJson);
+
+            OutputStream os = connection.getOutputStream();
+            os.write(requestData);
+            os.close();
+
+            InputStream es = connection.getErrorStream();
+            if (es != null) {
+                String msg = new String(es.readAllBytes(), StandardCharsets.UTF_8);
+                es.close();
+                System.err.println(msg);
+                return;
+            }
+
+            InputStream is = connection.getInputStream();
+            byte[] responseData = is.readAllBytes();
+            is.close();
+
+            connection.disconnect();
+
+            JSONObject responseJson = byteArrayToJson(responseData);
+
+            boolean permitted = responseJson.optBoolean("permitted", false);
+            if (!permitted) throw new OperationFailedException("Yetkisiz kullanıcı");
+
+            boolean succeed = responseJson.optBoolean("succeed", false);
+            if (!succeed) throw new OperationFailedException("İşlem gerçekleştirilemedi");
+
+        } catch (URISyntaxException | IOException | JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static ChargeMix[] getAllChargeMixes() throws OperationFailedException {
+
+        try {
+            URI uri = new URI(SERVER_URL + "/api/charge-mix/get.php");
+            HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
+
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setDoOutput(true);
+
+            JSONObject requestJson = new JSONObject();
+            requestJson.put("session-id", SessionIdHolder.getSessionId());
+
+            byte[] requestData = jsonToByteArray(requestJson);
+
+            OutputStream os = connection.getOutputStream();
+            os.write(requestData);
+            os.close();
+
+            connection.getResponseCode();
+
+            InputStream es = connection.getErrorStream();
+            if (es != null) {
+                String msg = new String(es.readAllBytes(), StandardCharsets.UTF_8);
+                es.close();
+                System.err.println(msg);
+                return new ChargeMix[0];
+            }
+
+            InputStream is = connection.getInputStream();
+            byte[] responseData = is.readAllBytes();
+            is.close();
+
+            connection.disconnect();
+
+            JSONObject responseJson = byteArrayToJson(responseData);
+
+            boolean permitted = responseJson.optBoolean("permitted");
+            if (!permitted) throw new OperationFailedException("Yetkisiz kullanıcı");
+
+            ChargeMix[] chargeMixes = new ChargeMix[responseJson.length() - 1];
+
+            for (int i = 0; i < responseJson.length() - 1; i++) {
+                chargeMixes[i] = new ChargeMix(responseJson.getJSONObject(String.valueOf(i)));
+            }
+
+            return chargeMixes;
+
+        } catch (URISyntaxException | IOException | JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static ChargeMix getChargeMix(String chargeMixName) throws OperationFailedException {
+
+        try {
+            URI uri = new URI(SERVER_URL + "/api/charge-mix/get.php");
+            HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
+
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setDoOutput(true);
+
+            JSONObject requestJson = new JSONObject();
+            requestJson.put("session-id", SessionIdHolder.getSessionId());
+            requestJson.put("charge-mix-name", chargeMixName);
+
+            byte[] requestData = jsonToByteArray(requestJson);
+
+            OutputStream os = connection.getOutputStream();
+            os.write(requestData);
+            os.close();
+
+            connection.getResponseCode();
+
+            InputStream es = connection.getErrorStream();
+            if (es != null) {
+                String msg = new String(es.readAllBytes(), StandardCharsets.UTF_8);
+                es.close();
+                System.err.println(msg);
+                return null;
+            }
+
+            InputStream is = connection.getInputStream();
+            byte[] responseData = is.readAllBytes();
+            is.close();
+
+            connection.disconnect();
+
+            JSONObject responseJson = byteArrayToJson(responseData);
+
+            boolean permitted = responseJson.optBoolean("permitted");
+            if (!permitted) throw new OperationFailedException("Yetkisiz kullanıcı");
+
+            ChargeMix[] chargeMixes = new ChargeMix[responseJson.length() - 1];
+
+            for (int i = 0; i < responseJson.length() - 1; i++) {
+                chargeMixes[i] = new ChargeMix(responseJson.getJSONObject(String.valueOf(i)));
+            }
+
+            return chargeMixes[0];
+
+        } catch (IOException | URISyntaxException | JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void deleteChargeMix(String chargeMixName) throws OperationFailedException {
+
+        try {
+            URI uri = new URI(SERVER_URL + "/api/charge-mix/delete.php");
+            HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
+
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setDoOutput(true);
+
+            JSONObject requestJson = new JSONObject();
+            requestJson.put("session-id", SessionIdHolder.getSessionId());
+            requestJson.put("charge-mix-name", chargeMixName);
+
+            byte[] requestData = jsonToByteArray(requestJson);
+
+            OutputStream os = connection.getOutputStream();
+            os.write(requestData);
+            os.close();
+
+            connection.getResponseCode();
+
+            InputStream es = connection.getErrorStream();
+            if (es != null) {
+                String msg = new String(es.readAllBytes(), StandardCharsets.UTF_8);
+                es.close();
+                System.err.println(msg);
+                return;
+            }
+
+            InputStream is = connection.getInputStream();
+            byte[] responseData = is.readAllBytes();
+            is.close();
+
+            connection.disconnect();
+
+            JSONObject responseJson = byteArrayToJson(responseData);
+
+            boolean permitted = responseJson.getBoolean("permitted");
+            if (!permitted) throw new OperationFailedException("Yetkisiz kullanıcı");
+
+            boolean succeed = responseJson.optBoolean("succeed", false);
+            if (!succeed) throw new OperationFailedException("Charge mix silinemedi: " + chargeMixName);
+
+        } catch (URISyntaxException | IOException | JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
 
     private static byte[] jsonToByteArray(JSONObject jsonObject) throws JSONException {
@@ -432,6 +688,7 @@ public class ScrapBridge {
     }
 
     private static JSONObject byteArrayToJson(byte[] data) throws JSONException {
-        return new JSONObject(new String(data, StandardCharsets.UTF_8));
+        String str = new String(data, StandardCharsets.UTF_8);
+        return new JSONObject(str);
     }
 }

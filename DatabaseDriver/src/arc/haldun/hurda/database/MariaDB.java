@@ -1,10 +1,12 @@
 package arc.haldun.hurda.database;
 
+import arc.haldun.hurda.database.objects.ChargeMix;
 import arc.haldun.hurda.database.objects.Scrap;
 import arc.haldun.hurda.database.objects.User;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MariaDB  implements IDatabase{
 
@@ -401,6 +403,125 @@ public class MariaDB  implements IDatabase{
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void addChargeMix(ChargeMix cm) throws OperationFailedException {
+
+        String sql = "INSERT INTO charge_mix " +
+                "(p01_name,p02_unit_rate,p03_percentage,p04_melt_factor) " +
+                "VALUES (?,?,?,?)";
+
+        try (PreparedStatement preparedStatement = Connector.getConnection().prepareStatement(sql)) {
+
+            preparedStatement.setString(1, cm.getP01_name());
+            preparedStatement.setDouble(2, cm.getP02_unitRate());
+            preparedStatement.setDouble(3, cm.getP03_percentage());
+            preparedStatement.setDouble(4, cm.getP04_meltFactor());
+
+            preparedStatement.execute();
+
+        } catch (SQLException e) {
+            if (e instanceof SQLIntegrityConstraintViolationException)
+                throw new OperationFailedException(cm.getP01_name() + " adında Charge Mix zaten mevcut");
+            else throw new OperationFailedException(e);
+        }
+    }
+
+    @Override
+    public void updateChargeMix(ChargeMix cm) throws OperationFailedException {
+
+        String sql = "UPDATE charge_mix SET " +
+                "p02_unit_rate=?," +
+                "p03_percentage=?," +
+                "p04_melt_factor=? " +
+                "WHERE p01_name=" + cm.getP01_name();
+
+        try (PreparedStatement preparedStatement = Connector.getConnection().prepareStatement(sql)) {
+
+            preparedStatement.setDouble(1, cm.getP02_unitRate());
+            preparedStatement.setDouble(2, cm.getP03_percentage());
+            preparedStatement.setDouble(3, cm.getP04_meltFactor());
+
+            int affectedRows = preparedStatement.executeUpdate(sql);
+
+            if (affectedRows == 0) {
+                throw new OperationFailedException("Charge Mix güncellenemedi: " + cm.getP01_name());
+            }
+
+        } catch (SQLException e) {
+            throw new OperationFailedException(e);
+        }
+    }
+
+    @Override
+    public ChargeMix[] getAllChargeMixes() throws OperationFailedException {
+
+        List<ChargeMix> chargeMixes = new ArrayList<>();
+
+        String sql = "SELECT * FROM charge_mix";
+
+        try (Statement statement = Connector.getConnection().createStatement()) {
+            ResultSet resultSet = statement.executeQuery(sql);
+
+            while (resultSet.next()) {
+                String name = resultSet.getString(1);
+                double unitRate = resultSet.getDouble(2);
+                double percentage = resultSet.getDouble(3);
+                double meltFactor = resultSet.getDouble(4);
+
+                chargeMixes.add(new ChargeMix(
+                        name,
+                        unitRate,
+                        percentage,
+                        meltFactor
+                ));
+            }
+
+        } catch (SQLException e) {
+            throw new OperationFailedException(e);
+        }
+
+        return chargeMixes.toArray(new ChargeMix[0]);
+    }
+
+    @Override
+    public ChargeMix getChargeMix(String chargeMixName) throws OperationFailedException {
+
+        String sql = "SELECT * FROM charge_mixes WHERE p01_name='?'";
+
+        try (PreparedStatement preparedStatement = Connector.getConnection().prepareStatement(sql)) {
+            preparedStatement.setString(1, chargeMixName);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                return new ChargeMix(
+                        resultSet.getString("p01_name"),
+                        resultSet.getDouble("p02_unit_rate"),
+                        resultSet.getDouble("p03_percentage"),
+                        resultSet.getDouble("p04_melt_factor")
+                );
+            } else throw new OperationFailedException("Charge mix bulunamadı: " + chargeMixName);
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void deleteChargeMix(String chargeMixName) throws OperationFailedException {
+
+        String sql = "DELETE FROM charge_mixes WHERE p01_name=" + chargeMixName;
+
+        try (Statement statement = Connector.getConnection().createStatement()) {
+            int affectedRows = statement.executeUpdate(sql);
+
+            if (affectedRows == 0) throw new OperationFailedException("Charge Mix silinemedi: " + chargeMixName);
+            else if (affectedRows > 1) throw new OperationFailedException("SQL HATASI! BİRDEN FAZLA SATIR SİLİNDİ!");
+        } catch (SQLException e) {
+            throw new OperationFailedException(e);
         }
     }
 }
