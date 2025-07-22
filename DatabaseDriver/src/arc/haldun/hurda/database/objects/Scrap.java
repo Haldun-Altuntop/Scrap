@@ -7,8 +7,10 @@ public class Scrap {
 
     private String p01_name;
     private double p02_price, p03_stock, p04_C, p05_Si, p06_Mn, p07_P, p08_S, p09_Fe, p10_O, p11_H2O, p12_CaO,
-            p13_MgO, p14_Al2O3, p15_SiO2, p16_Cu, p17_Ni, p18_Cr, p19_Sn, p20_Mo, p21_slag, p22_yield, p23_dH;
+            p13_MgO, p14_Al2O3, p15_SiO2, p16_Cu, p17_Ni, p18_Cr, p19_Sn, p20_Mo, p21_slag, p22_yield, p23_dH,
+            p24_meltingFactor;
 
+    @Deprecated(since = "melting factor parameter added")
     public Scrap(String p01_name, double p02_price, double p03_stock, double p04_C, double p05_Si, double p06_Mn,
                  double p07_P, double p08_S, double p09_Fe, double p10_O, double p11_H2O, double p12_CaO,
                  double p13_MgO, double p14_Al2O3, double p15_SiO2, double p16_Cu, double p17_Ni, double p18_Cr,
@@ -38,6 +40,36 @@ public class Scrap {
         this.p23_dH = p23_dH;
     }
 
+    public Scrap(String p01_name, double p02_price, double p03_stock, double p04_C, double p05_Si,
+                 double p06_Mn, double p07_P, double p08_S, double p09_Fe, double p10_O, double p11_H2O, double p12_CaO,
+                 double p13_MgO, double p14_Al2O3, double p15_SiO2, double p16_Cu, double p17_Ni, double p18_Cr,
+                 double p19_Sn, double p20_Mo, double p21_slag, double p22_yield, double p23_dH, double p24_meltingFactor) {
+        this.p01_name = p01_name;
+        this.p02_price = p02_price;
+        this.p03_stock = p03_stock;
+        this.p04_C = p04_C;
+        this.p05_Si = p05_Si;
+        this.p06_Mn = p06_Mn;
+        this.p07_P = p07_P;
+        this.p08_S = p08_S;
+        this.p09_Fe = p09_Fe;
+        this.p10_O = p10_O;
+        this.p11_H2O = p11_H2O;
+        this.p12_CaO = p12_CaO;
+        this.p13_MgO = p13_MgO;
+        this.p14_Al2O3 = p14_Al2O3;
+        this.p15_SiO2 = p15_SiO2;
+        this.p16_Cu = p16_Cu;
+        this.p17_Ni = p17_Ni;
+        this.p18_Cr = p18_Cr;
+        this.p19_Sn = p19_Sn;
+        this.p20_Mo = p20_Mo;
+        this.p21_slag = p21_slag;
+        this.p22_yield = p22_yield;
+        this.p23_dH = p23_dH;
+        this.p24_meltingFactor = p24_meltingFactor;
+    }
+
     public Scrap(JSONObject json) {
 
         p01_name = json.optString("p01_name");
@@ -63,6 +95,7 @@ public class Scrap {
         p21_slag = json.optDouble("p21_slag", 0);
         p22_yield = json.optDouble("p22_yield", 0);
         p23_dH = json.optDouble("p23_dH", 0);
+        p24_meltingFactor = json.optDouble("p24_meltingFactor");
     }
 
     public String getP01_name() {
@@ -249,6 +282,14 @@ public class Scrap {
         this.p23_dH = p23_dH;
     }
 
+    public double getP24_meltingFactor() {
+        return p24_meltingFactor;
+    }
+
+    public void setP24_meltingFactor(double p24_meltingFactor) {
+        this.p24_meltingFactor = p24_meltingFactor;
+    }
+
     public JSONObject toJson() {
 
         try {
@@ -277,6 +318,7 @@ public class Scrap {
             jsonObject.put("p21_slag", p21_slag);
             jsonObject.put("p22_yield", p22_yield);
             jsonObject.put("p23_dH", p23_dH);
+            jsonObject.put("p24_meltingFactor", p24_meltingFactor);
 
             return jsonObject;
 

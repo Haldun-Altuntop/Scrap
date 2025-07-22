@@ -1,6 +1,7 @@
 package arc.haldun.hurda.database;
 
 import arc.haldun.hurda.database.objects.ChargeMix;
+import arc.haldun.hurda.database.objects.GeneralParameter;
 import arc.haldun.hurda.database.objects.Scrap;
 import arc.haldun.hurda.database.objects.User;
 
@@ -171,7 +172,8 @@ public class MariaDB  implements IDatabase{
                     resultSet.getDouble("p20_Mo"),
                     resultSet.getDouble("p21_slag"),
                     resultSet.getDouble("p22_yield"),
-                    resultSet.getDouble("p23_dH")
+                    resultSet.getDouble("p23_dH"),
+                    resultSet.getDouble("p24_meltingFactor")
             );
 
             scraps.add(scrap);
@@ -217,7 +219,8 @@ public class MariaDB  implements IDatabase{
                         resultSet.getDouble("p20_Mo"),
                         resultSet.getDouble("p21_slag"),
                         resultSet.getDouble("p22_yield"),
-                        resultSet.getDouble("p23_dH")
+                        resultSet.getDouble("p23_dH"),
+                        resultSet.getDouble("p24_meltingFactor")
                 );
 
                 statement.close();
@@ -489,7 +492,7 @@ public class MariaDB  implements IDatabase{
     @Override
     public ChargeMix getChargeMix(String chargeMixName) throws OperationFailedException {
 
-        String sql = "SELECT * FROM charge_mixes WHERE p01_name='?'";
+        String sql = "SELECT * FROM charge_mix WHERE p01_name='?'";
 
         try (PreparedStatement preparedStatement = Connector.getConnection().prepareStatement(sql)) {
             preparedStatement.setString(1, chargeMixName);
@@ -513,7 +516,7 @@ public class MariaDB  implements IDatabase{
     @Override
     public void deleteChargeMix(String chargeMixName) throws OperationFailedException {
 
-        String sql = "DELETE FROM charge_mixes WHERE p01_name=" + chargeMixName;
+        String sql = "DELETE FROM charge_mix WHERE p01_name=" + chargeMixName;
 
         try (Statement statement = Connector.getConnection().createStatement()) {
             int affectedRows = statement.executeUpdate(sql);
@@ -522,6 +525,104 @@ public class MariaDB  implements IDatabase{
             else if (affectedRows > 1) throw new OperationFailedException("SQL HATASI! BİRDEN FAZLA SATIR SİLİNDİ!");
         } catch (SQLException e) {
             throw new OperationFailedException(e);
+        }
+    }
+
+    @Override
+    public void addGeneralParameter(GeneralParameter parameter) throws OperationFailedException {
+
+        String sql = "INSERT INTO general_parameters (name,value) VALUES (?,?)";
+
+        try (PreparedStatement preparedStatement = Connector.getConnection().prepareStatement(sql)) {
+            preparedStatement.setString(1, parameter.getName());
+            preparedStatement.setDouble(2, parameter.getValue());
+
+            int result = preparedStatement.executeUpdate();
+
+            if (result == 0) throw new OperationFailedException("Bilinmeyen bir hata meydna geldi");
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void updateGeneralParameter(GeneralParameter parameter) throws OperationFailedException {
+
+        String sql = "UPDATE general_parameters SET " +
+                "value=" + parameter.getValue() +
+                " WHERE name=" + parameter.getName();
+
+        try (Statement statement = Connector.getConnection().createStatement()) {
+
+            int result = statement.executeUpdate(sql);
+
+            if (result == 0) throw new OperationFailedException("Bilinmeyen bir hata meydana geldi");
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public GeneralParameter[] getAllGeneralParameters() throws OperationFailedException {
+
+        List<GeneralParameter> parameters = new ArrayList<>();
+
+        String sql = "SELECT * FROM general_parameters";
+
+        try (Statement statement = Connector.getConnection().createStatement()) {
+
+            ResultSet resultSet = statement.executeQuery(sql);
+
+            while (resultSet.next()) {
+                parameters.add(new GeneralParameter(
+                        resultSet.getString("name"),
+                        resultSet.getDouble("value")
+                ));
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return parameters.toArray(new GeneralParameter[0]);
+    }
+
+    @Override
+    public GeneralParameter getGeneralParameter(String parameterName) throws OperationFailedException {
+
+        String sql = "SELECT * FROM general_parameters WHERE name=" + parameterName;
+
+        try (Statement statement = Connector.getConnection().createStatement()) {
+
+            ResultSet resultSet = statement.executeQuery(sql);
+
+            if (resultSet.next()) {
+                return new GeneralParameter(
+                        resultSet.getString("name"),
+                        resultSet.getDouble("value")
+                );
+            } else throw new OperationFailedException("Bilinmeyen bir hata meydana geldi");
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void deleteGeneralParameter(String parameterName) throws OperationFailedException {
+
+        String sql = "DELETE FROM general_parameters WHERE name=" + parameterName;
+
+        try (Statement statement = Connector.getConnection().createStatement()) {
+
+            int result = statement.executeUpdate(sql);
+
+            if (result == 0) throw new OperationFailedException("Bilinmeyen bir hata meydana geldi");
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 }

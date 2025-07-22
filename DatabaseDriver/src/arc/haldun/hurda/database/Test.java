@@ -44,7 +44,8 @@ public class Test {
     private static Scrap getScrap(Scanner scanner) {
         String p01_name;
         double p02_price, p03_stock, p04_C, p05_Si, p06_Mn, p07_P, p08_S, p09_Fe, p10_O, p11_H2O, p12_CaO,
-                p13_MgO, p14_Al2O3, p15_SiO2, p16_Cu, p17_Ni, p18_Cr, p19_Sn, p20_Mo, p21_slag, p22_yield, p23_dH;
+                p13_MgO, p14_Al2O3, p15_SiO2, p16_Cu, p17_Ni, p18_Cr, p19_Sn, p20_Mo, p21_slag, p22_yield, p23_dH,
+                p24_meltingFactor;
 
         System.out.print("Name: ");
         p01_name = scanner.nextLine();
@@ -115,9 +116,12 @@ public class Test {
         System.out.print("dH: ");
         p23_dH = Double.parseDouble(scanner.nextLine());
 
+        System.out.print("Melting factor: ");
+        p24_meltingFactor = Double.parseDouble(scanner.nextLine());
+
         return new Scrap(p01_name, p02_price, p03_stock, p04_C, p05_Si, p06_Mn, p07_P, p08_S, p09_Fe, p10_O,
                 p11_H2O, p12_CaO, p13_MgO, p14_Al2O3, p15_SiO2, p16_Cu, p17_Ni, p18_Cr, p19_Sn, p20_Mo, p21_slag,
-                p22_yield, p23_dH);
+                p22_yield, p23_dH, p24_meltingFactor);
     }
 
     public static Scrap[] prepareScraps() {
@@ -147,7 +151,8 @@ public class Test {
                 0.01,
                 120,
                 91.4,
-                394
+                394,
+                34
         ));
 
         scraps.add(new Scrap(
@@ -173,7 +178,8 @@ public class Test {
                 0.005,
                 110,
                 92.5,
-                374.6
+                374.6,
+                34
         ));
 
         scraps.add(new Scrap(
@@ -199,7 +205,8 @@ public class Test {
                 0,
                 132,
                 88.9,
-                361
+                361,
+                3
         ));
 
         return scraps.toArray(new Scrap[0]);

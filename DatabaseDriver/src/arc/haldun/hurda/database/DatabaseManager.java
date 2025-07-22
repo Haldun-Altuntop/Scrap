@@ -1,6 +1,7 @@
 package arc.haldun.hurda.database;
 
 import arc.haldun.hurda.database.objects.ChargeMix;
+import arc.haldun.hurda.database.objects.GeneralParameter;
 import arc.haldun.hurda.database.objects.Scrap;
 import arc.haldun.hurda.database.objects.User;
 
@@ -134,5 +135,45 @@ public class DatabaseManager {
 
     public static void deleteChargeMix(String chargeMixName) throws OperationFailedException {
         deleteChargeMix(chargeMixName, database);
+    }
+
+    public static void addGeneralParameter(GeneralParameter parameter, IDatabase database) throws OperationFailedException {
+        database.addGeneralParameter(parameter);
+    }
+
+    public static void addGeneralParameter(GeneralParameter parameter) throws OperationFailedException {
+        addGeneralParameter(parameter, database);
+    }
+
+    public static void updateGeneralParameter(GeneralParameter parameter, IDatabase database) throws OperationFailedException {
+        database.updateGeneralParameter(parameter);
+    }
+
+    public static void updateGeneralParameter(GeneralParameter parameter) throws OperationFailedException {
+        updateGeneralParameter(parameter, database);
+    }
+
+    public static GeneralParameter[] getAllGeneralParameters(IDatabase database) throws OperationFailedException {
+        return database.getAllGeneralParameters();
+    }
+
+    public static GeneralParameter[] getAllGeneralParameters() throws OperationFailedException {
+        return getAllGeneralParameters(database);
+    }
+
+    public static GeneralParameter getGeneralParameter(String parameterName, IDatabase database) throws OperationFailedException {
+        return database.getGeneralParameter(parameterName);
+    }
+
+    public static GeneralParameter getGeneralParameter(String parameterName) throws OperationFailedException {
+        return getGeneralParameter(parameterName, database);
+    }
+
+    public static void deleteGeneralParameter(String parameterName, IDatabase database) throws OperationFailedException {
+        database.deleteGeneralParameter(parameterName);
+    }
+
+    public static void deleteGeneralParameter(String parameterName) throws OperationFailedException {
+        deleteGeneralParameter(parameterName, database);
     }
 }

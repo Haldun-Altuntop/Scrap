@@ -1,8 +1,10 @@
 package arc.haldun.hurda.api;
 
+import android.graphics.Path;
 import android.speech.SpeechRecognizer;
 import arc.haldun.hurda.database.OperationFailedException;
 import arc.haldun.hurda.database.objects.ChargeMix;
+import arc.haldun.hurda.database.objects.GeneralParameter;
 import arc.haldun.hurda.database.objects.Scrap;
 import jdk.jshell.spi.ExecutionControl;
 import org.json.JSONException;
@@ -15,6 +17,7 @@ import java.net.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ScrapBridge {
@@ -675,6 +678,265 @@ public class ScrapBridge {
 
             boolean succeed = responseJson.optBoolean("succeed", false);
             if (!succeed) throw new OperationFailedException("Charge mix silinemedi: " + chargeMixName);
+
+        } catch (URISyntaxException | IOException | JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void addGeneralParameter(GeneralParameter parameter) throws OperationFailedException {
+
+        try {
+            URI uri = new URI(SERVER_URL + "/api/general-parameters/add.php");
+            HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
+
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setDoOutput(true);
+
+            JSONObject requestJson = new JSONObject();
+            requestJson.put("session-id", SessionIdHolder.getSessionId());
+            requestJson.put("general-parameter", parameter.toJson());
+
+            byte[] requestData = jsonToByteArray(requestJson);
+
+            OutputStream os = connection.getOutputStream();
+            os.write(requestData);
+            os.close();
+
+            connection.getResponseCode();
+
+            InputStream es = connection.getErrorStream();
+            if (es != null) {
+                String msg = new String(es.readAllBytes(), StandardCharsets.UTF_8);
+                es.close();
+
+                JSONObject jsonObject = new JSONObject(msg);
+                msg = jsonObject.optString("msg");
+
+                System.err.println(msg);
+                return;
+            }
+
+
+            InputStream is = connection.getInputStream();
+            byte[] responseData = is.readAllBytes();
+            is.close();
+
+            connection.disconnect();
+
+            JSONObject responseJson = byteArrayToJson(responseData);
+
+            if (!responseJson.getBoolean("permitted")) throw new OperationFailedException("Yetkisiz kullanıcı");
+
+        } catch (URISyntaxException | IOException | JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void updateGeneralParameter(GeneralParameter parameter) throws OperationFailedException {
+
+        try {
+            URI uri = new URI(SERVER_URL + "/api/general-parameters/update.php");
+            HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
+
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setDoOutput(true);
+
+            JSONObject requestJson = new JSONObject();
+            requestJson.put("session-id", SessionIdHolder.getSessionId());
+            requestJson.put("general-parameter", parameter.toJson());
+
+            byte[] requestData = jsonToByteArray(requestJson);
+
+            OutputStream os = connection.getOutputStream();
+            os.write(requestData);
+            os.close();
+
+            connection.getResponseCode();
+
+            InputStream es = connection.getErrorStream();
+            if (es != null) {
+                String msg = new String(es.readAllBytes(), StandardCharsets.UTF_8);
+                es.close();
+
+                JSONObject jsonObject = new JSONObject(msg);
+                msg = jsonObject.optString("msg");
+
+                System.err.println(msg);
+                return;
+            }
+
+            InputStream is = connection.getInputStream();
+            byte[] responseData = is.readAllBytes();
+            is.close();
+
+            connection.disconnect();
+
+            JSONObject responseJson = byteArrayToJson(responseData);
+
+            boolean permitted = responseJson.optBoolean("permitted");
+            if (!permitted) throw new OperationFailedException("Yetkisiz kullanıcı");
+
+        } catch (URISyntaxException | IOException | JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static GeneralParameter[] getAllGeneralParameters() throws OperationFailedException {
+
+        try {
+            URI uri = new URI(SERVER_URL + "/api/general-parameters/get.php");
+            HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
+
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setDoOutput(true);
+
+            JSONObject requestJson = new JSONObject();
+            requestJson.put("session-id", SessionIdHolder.getSessionId());
+
+            byte[] requestData = jsonToByteArray(requestJson);
+
+            OutputStream os = connection.getOutputStream();
+            os.write(requestData);
+            os.close();
+
+            connection.getResponseCode();
+
+            InputStream es = connection.getErrorStream();
+            if (es != null) {
+                String msg = new String(es.readAllBytes(), StandardCharsets.UTF_8);
+                es.close();
+
+                JSONObject jsonObject = new JSONObject(msg);
+                msg = jsonObject.optString("msg");
+
+                System.err.println(msg);
+                return new GeneralParameter[0];
+            }
+
+            InputStream is = connection.getInputStream();
+            byte[] responseData = is.readAllBytes();
+            is.close();
+
+            connection.disconnect();
+
+            JSONObject responseJson = byteArrayToJson(responseData);
+
+            boolean permitted = responseJson.optBoolean("permitted");
+            if (!permitted) throw new OperationFailedException("Yetkisiz kullanıcı");
+
+            List<GeneralParameter> parameters = new ArrayList<>();
+            for (int i = 0; i < responseJson.length() - 1; i++) {
+                GeneralParameter parameter = new GeneralParameter(
+                        responseJson.getJSONObject(String.valueOf(i))
+                );
+                parameters.add(parameter);
+            }
+
+            return parameters.toArray(new GeneralParameter[0]);
+
+        } catch (URISyntaxException | IOException | JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static GeneralParameter getGeneralParameter(String parameterName) throws OperationFailedException {
+
+        try {
+            URI uri = new URI(SERVER_URL + "/api/general-parameters/get.php");
+            HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
+
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setDoOutput(true);
+
+            JSONObject requestJson = new JSONObject();
+            requestJson.put("session-id", SessionIdHolder.getSessionId());
+            requestJson.put("parameter-name", parameterName);
+
+            byte[] requestData = jsonToByteArray(requestJson);
+
+            OutputStream os = connection.getOutputStream();
+            os.write(requestData);
+            os.close();
+
+            connection.getResponseCode();
+
+            InputStream es = connection.getErrorStream();
+            if (es != null) {
+                String msg = new String(es.readAllBytes(), StandardCharsets.UTF_8);
+                es.close();
+
+                JSONObject jsonObject = new JSONObject(msg);
+                msg = jsonObject.optString("msg");
+
+                System.err.println(msg);
+                return null;
+            }
+
+            InputStream is = connection.getInputStream();
+            byte[] responseData = is.readAllBytes();
+            is.close();
+
+            connection.disconnect();
+
+            JSONObject responseJson = byteArrayToJson(responseData);
+
+            boolean permitted = responseJson.optBoolean("permitted");
+            if (!permitted) throw new OperationFailedException("Yetkisiz kullanıcı");
+
+            return new GeneralParameter(responseJson.getJSONObject("0"));
+
+        } catch (URISyntaxException | IOException | JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void deleteGeneralParameter(String parameterName) throws OperationFailedException {
+
+        try {
+            URI uri = new URI(SERVER_URL + "/api/general-parameters/delete.php");
+            HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
+
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setDoOutput(true);
+
+            JSONObject requestJson = new JSONObject();
+            requestJson.put("session-id", SessionIdHolder.getSessionId());
+            requestJson.put("parameter-name", parameterName);
+
+            byte[] requestData = jsonToByteArray(requestJson);
+
+            OutputStream os = connection.getOutputStream();
+            os.write(requestData);
+            os.close();
+
+            connection.getResponseCode();
+
+            InputStream es = connection.getErrorStream();
+            if (es != null) {
+                String msg = new String(es.readAllBytes(), StandardCharsets.UTF_8);
+                es.close();
+
+                JSONObject jsonObject = new JSONObject(msg);
+                msg = jsonObject.optString("msg");
+
+                System.err.println(msg);
+                return;
+            }
+
+            InputStream is = connection.getInputStream();
+            byte[] responseData = is.readAllBytes();
+            is.close();
+
+            JSONObject responseJson = byteArrayToJson(responseData);
+
+            boolean permitted = responseJson.getBoolean("permitted");
+            if (!permitted) throw new OperationFailedException("Yetkisiz kullanıcı");
 
         } catch (URISyntaxException | IOException | JSONException e) {
             throw new RuntimeException(e);
